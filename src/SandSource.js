@@ -1,0 +1,62 @@
+window.SandSource = class SandSource {
+  constructor(glContext, options) {
+    this.options = options;
+    this.context = glContext;
+    this.time = Math.random() * 2024;
+    this.width = 1024;
+    this.pixels = new Float32Array(this.width * 4);
+    this.texture = new GLTexture(glContext, { width: 1024, height: 1, linearSample: false});
+  }
+
+
+  clearPixels() {
+    for (let i = 0; i < this.pixels.length; i++)
+      this.pixels[i] = 0;
+  }
+
+
+
+  updatePixels() {
+    const t = this.time;
+    const random = (seed, timeScale) => Math.abs(noise.simplex2(seed, t / timeScale));
+
+    const emitters = [];
+    for (var e = 0; e < this.options.source.numEmitters; e++) {
+      const flows = [Math.pow(random(e + 10, 500), 3) * 25,
+                     Math.pow(random(e + 20, 500), 3) * 25,
+                     Math.pow(random(e + 30, 500), 3) * 25,
+                     Math.pow(random(e + 40, 500), 3) * 25];
+      const x = (random(e + 50, 2000) + 0.1) * this.width;
+      const width = Math.pow(random(e + 200, 50), 2) * 0.03 * this.width + 1;
+      emitters.push({
+        flows: flows,
+        totalFlow: Math.max(_.sum(flows), 0.001),
+        width: width|width,
+        x: x|x
+      })
+    }
+
+    const totalRelativeFlows = _(emitters).map('totalFlow').sum();
+    const adjustedFlow = Math.max(this.options.source.minRate, totalRelativeFlows);
+    const flowScale = adjustedFlow / totalRelativeFlows;
+
+    for (let e of emitters) {
+      for (let i = e.x; i < e.x + e.width; i++) {
+        if (i >= 0 && i < this.width) {
+          this.pixels[i * 4 + 0] += e.flows[0] * flowScale;
+          this.pixels[i * 4 + 1] += e.flows[1] * flowScale;
+          this.pixels[i * 4 + 2] += e.flows[2] * flowScale;
+          this.pixels[i * 4 + 3] += e.flows[3] * flowScale;
+        }
+      }
+    }
+  }
+
+
+  tick(dt) {
+    this.time += 0.05;
+    this.clearPixels();
+    this.updatePixels();
+    this.texture.setPixels(this.pixels);
+  }
+}
