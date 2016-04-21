@@ -2,6 +2,9 @@ window.Options = class Options {
   constructor() {
     this.dt = 0.05;
 
+    this.flipScreen = false;
+    this.edgeFade = 0;
+
     this.fluid = {
       pressureSolveIterations: 18,
       resolution: 256
@@ -56,6 +59,7 @@ window.Options = class Options {
        .step(0.01)
        .name('Time Delta (dt)');
 
+    this.initializeOverallGUI(gui);
     this.initializeFluidGUI(gui);
     this.initializeSourceGUI(gui);
     this.initializeSettlementGUI(gui);
@@ -63,6 +67,25 @@ window.Options = class Options {
 
     gui.remember(this);
     gui.close();
+  }
+
+  initializeOverallGUI(gui) {
+    gui.add(this, 'flipScreen')
+       .name('Flip Screen')
+       .onChange(function(value) {
+         if (value) {
+          document.getElementById('container').style.transform = 'scale(1,-1)';
+         } else {
+          document.getElementById('container').style.transform = 'scale(1,1)';
+         }
+       });
+    gui.add(this, 'edgeFade')
+       .min(0)
+       .max(100)
+       .name('Edge Fade')
+       .onChange(function(value) {
+          document.getElementById('fade-at-bottom').style.height = value + '%';
+       });
   }
 
 

@@ -134,7 +134,7 @@ window.FluidSolver = class FluidSolver {
           velocityField,
           motionCoords: [this.mousePosition[0], 1 - this.mousePosition[1]], 
           motionDirection: [unitMouseVelocity[0] * 4000, unitMouseVelocity[1] * 4000], 
-          motionRadius: 0.1 + 0.5 * mouseVelocityMagnitude, 
+          motionRadius: 0.1 + mouseVelocityMagnitude, 
           dt
         }, velocityField);
 
@@ -196,7 +196,7 @@ window.FluidSolver = class FluidSolver {
       heightMap,
       resolution,
       dt,
-      dragValues: [1, 0.35, 0.3, 0.25],
+      dragValues: [1, 0.9, 0.9, 0.8],
       translate: [0, 0.005]
     }, sandField)
 
