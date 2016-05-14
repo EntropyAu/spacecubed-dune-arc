@@ -183,7 +183,7 @@ window.FluidSolver = class FluidSolver {
       sandField,
       velocityField,
       dt,
-      dragValues: [1, 40, 40, 40]
+      dragValues: [1, 40, 40, 100]
     }, velocityField);
 
     this.programs.fluidDivergence.run({
@@ -210,7 +210,7 @@ window.FluidSolver = class FluidSolver {
       heightMap,
       resolution,
       dt,
-      dragValues: [1, 0.9, 0.9, 0.8],
+      dragValues: [1, 0.9, 0.9, 1.1],
       translate: [0, 0.005]
     }, sandField)
 

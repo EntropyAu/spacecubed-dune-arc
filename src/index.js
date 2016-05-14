@@ -17,7 +17,7 @@ function tick() {
   sandSource.tick(options.dt);
   fluidSolver.tick(options.dt);
   sandSolver.tick(options.dt);
-  //ghostMaker.tick(options.dt);
+  ghostMaker.tick(options.dt);
 
   requestAnimationFrame(tick);
 
@@ -30,10 +30,10 @@ function main() {
   window.sandSolver = new SandSolver(glContext, document.getElementById('sand-canvas'), options);
   window.sandSource = new SandSource(glContext, options);
   window.fluidSolver = new FluidSolver(glContext, options);
-  //window.ghostMaker = new GhostMaker(glContext, options)
+  window.ghostMaker = new GhostMaker(glContext, options)
   fluidSolver.setSourceTexture(sandSource.texture);
   fluidSolver.setSettlementTexture(sandSolver.texture);
-  //fluidSolver.setGhostSourceTexture(ghostMaker.texture);
+  fluidSolver.setGhostSourceTexture(ghostMaker.texture);
   fluidSolver.setHeightMapTexture(sandSolver.heightMapTexture);
   document.body.addEventListener('mousemove', (e) => {
     currentCursorPosition = [e.clientX / document.body.clientWidth,

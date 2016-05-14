@@ -6,8 +6,8 @@ window.Options = class Options {
     this.edgeFade = 0;
 
     this.fluid = {
-      pressureSolveIterations: 5,
-      resolution: 128
+      pressureSolveIterations: 2,
+      resolution: 256
     };
 
     this.source = {

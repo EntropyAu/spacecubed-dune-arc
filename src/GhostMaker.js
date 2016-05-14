@@ -14,7 +14,7 @@ window.GhostMaker = class GhostMaker {
     this.ghostCanvasContext = this.ghostCanvas.getContext("2d");
     this.initializeBufferCanvas();
     this.initializeDifferenceCanvas();
-    this.texture = new GLTexture(glContext, { width: this.width, height: this.height });
+    this.texture = new GLTexture(glContext, { width: this.width, height: this.height, linearSample: false });
     this.playing = false;
     this.frame = 0;
     this.start();
