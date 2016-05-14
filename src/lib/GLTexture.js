@@ -20,7 +20,7 @@ window.GLTexture = class GLTexture {
       }
     }
     this.setPixels(options.pixels);
-    context.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S,     GL.CLAMP_TO_EDGE); 
+    context.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_S,     GL.CLAMP_TO_EDGE);
     context.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_WRAP_T,     GL.CLAMP_TO_EDGE);
     context.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MIN_FILTER, options.linearSample !== false ? GL.LINEAR : GL.NEAREST);
     context.gl.texParameteri(GL.TEXTURE_2D, GL.TEXTURE_MAG_FILTER, options.linearSample !== false ? GL.LINEAR : GL.NEAREST);
@@ -35,18 +35,18 @@ window.GLTexture = class GLTexture {
     this.context.gl.bindFramebuffer(GL.FRAMEBUFFER, this.fbo);
   }
 
-  setPixels(pixels) {
+  setPixels(pixels, mode) {
+    mode = mode || GL.FLOAT;
     this.context.gl.activeTexture(this.id);
-    this.context.gl.texImage2D(GL.TEXTURE_2D, 
+    this.context.gl.texImage2D(GL.TEXTURE_2D,
                                0,
-                               GL.RGBA, 
-                               this.options.width, 
-                               this.options.height, 
-                               0, 
-                               GL.RGBA, 
-                               GL.FLOAT, 
+                               GL.RGBA,
+                               this.options.width,
+                               this.options.height,
+                               0,
+                               GL.RGBA,
+                               mode,
                                pixels);
-
   }
 
   getPixels() {

@@ -3,7 +3,7 @@ window.FluidSolver = class FluidSolver {
     this.context = glContext;
     this.options = options;
     this.textures = {};
-    this.fragmentShaders = {};  
+    this.fragmentShaders = {};
     this.vertexShaders = {};
     this.pointerDown = false;
     this.mousePosition = null;
@@ -26,6 +26,9 @@ window.FluidSolver = class FluidSolver {
   setSourceTexture(texture) {
     this.sourceTexture = texture;
   }
+  setGhostSourceTexture(texture) {
+    this.ghostSourceTexture = texture;
+  }
   setSettlementTexture(texture) {
     this.settlementTexture = texture;
   }
@@ -45,22 +48,23 @@ window.FluidSolver = class FluidSolver {
       sandAdvect:                 GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/sandAdvect.glsl"),
       sandSettle:                 GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/sandSettle.glsl"),
       sandSource:                 GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/sandSource.glsl"),
+      sandGhostSource:            GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/sandGhostSource.glsl"),
       mouseMotion:                GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/mouseMotion.glsl"),
       sandDrag:                   GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/sandDrag.glsl"),
       sandAdd:                    GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/sandAdd.glsl"),
       show:                       GLFragmentShader.factoryFromPath(this.context, "./shaders/fragment/show.glsl")
-    }, (err, shaders) => { 
-      this.fragmentShaders = shaders; 
-      return callback(); 
+    }, (err, shaders) => {
+      this.fragmentShaders = shaders;
+      return callback();
     });
   }
   loadVertexShaders(callback) {
     console.log("Loading vertex shaders...");
     async.series({
       simple: GLVertexShader.factoryFromPath(this.context, "./shaders/vertex/simple.glsl"),
-    }, (err, shaders) => { 
-      this.vertexShaders = shaders; 
-      return callback(); 
+    }, (err, shaders) => {
+      this.vertexShaders = shaders;
+      return callback();
     });
   }
   setMouseMotion(positionXY, velocityXY, pointerDown) {
@@ -79,6 +83,7 @@ window.FluidSolver = class FluidSolver {
       sandDrag:        new GLProgram(this.context, this.vertexShaders.simple, this.fragmentShaders.sandDrag),
       sandSettle:      new GLProgram(this.context, this.vertexShaders.simple, this.fragmentShaders.sandSettle),
       sandSource:      new GLProgram(this.context, this.vertexShaders.simple, this.fragmentShaders.sandSource),
+      sandGhostSource: new GLProgram(this.context, this.vertexShaders.simple, this.fragmentShaders.sandGhostSource),
       mouseMotion:     new GLProgram(this.context, this.vertexShaders.simple, this.fragmentShaders.mouseMotion),
       show:            new GLProgram(this.context, this.vertexShaders.simple, this.fragmentShaders.show)
     }
@@ -91,13 +96,13 @@ window.FluidSolver = class FluidSolver {
     this.context.gl.enableVertexAttribArray(aTexLoc);
     this.context.gl.bindBuffer(GL.ARRAY_BUFFER, this.context.gl.createBuffer());
     this.context.gl.bufferData(GL.ARRAY_BUFFER, new Float32Array([
-                                 -1, -1, 
-                                  0,  0,  
-                                  1, -1, 
-                                  1,  0,  
-                                 -1,  1, 
-                                  0,  1, 
-                                  1,  1, 
+                                 -1, -1,
+                                  0,  0,
+                                  1, -1,
+                                  1,  0,
+                                 -1,  1,
+                                  0,  1,
+                                  1,  1,
                                   1,  1 ]), GL.STATIC_DRAW);
     this.context.gl.vertexAttribPointer(aPosLoc, 2, GL.FLOAT, GL.FALSE, 16, 0);
     this.context.gl.vertexAttribPointer(aTexLoc, 2, GL.FLOAT, GL.FALSE, 16, 8);
@@ -130,37 +135,46 @@ window.FluidSolver = class FluidSolver {
       if (mouseVelocityMagnitude > 0) {
         let unitMouseVelocity = [-this.mouseVelocity[0] / mouseVelocityMagnitude,
                                   this.mouseVelocity[1] / mouseVelocityMagnitude];
-        this.programs.mouseMotion.run({ 
+        this.programs.mouseMotion.run({
           velocityField,
-          motionCoords: [this.mousePosition[0], 1 - this.mousePosition[1]], 
-          motionDirection: [unitMouseVelocity[0] * 4000, unitMouseVelocity[1] * 4000], 
-          motionRadius: 0.1 + mouseVelocityMagnitude, 
+          motionCoords: [this.mousePosition[0], 1 - this.mousePosition[1]],
+          motionDirection: [unitMouseVelocity[0] * 4000, unitMouseVelocity[1] * 4000],
+          motionRadius: 0.1 + mouseVelocityMagnitude,
           dt
         }, velocityField);
 
       }
       if (this.pointerDown) {
-        this.programs.sandAdd.run({ 
+        this.programs.sandAdd.run({
           sandField,
-          motionCoords: [this.mousePosition[0], 1 - this.mousePosition[1]], 
-          motionRadius: 0.01, 
+          motionCoords: [this.mousePosition[0], 1 - this.mousePosition[1]],
+          motionRadius: 0.01,
           sandVolumes: [0.5, 0.1, 0.1, 0.01],
-          dt 
+          dt
         }, sandField);
       }
     }
 
     if (this.sourceTexture) {
-      this.programs.sandSource.run({ 
+      this.programs.sandSource.run({
         invResolution,
         sandField,
         sandSource: this.sourceTexture,
-        dt 
+        dt
       }, sandField);
     }
 
-    this.programs.fluidAdvect.run({ 
-      velocityField, 
+    if (this.ghostSourceTexture) {
+      this.programs.sandGhostSource.run({
+        invResolution,
+        sandField,
+        sandSource: this.ghostSourceTexture,
+        dt
+      }, sandField);
+    }
+
+    this.programs.fluidAdvect.run({
+      velocityField,
       invResolution,
       dt
     }, velocityField);
@@ -169,23 +183,23 @@ window.FluidSolver = class FluidSolver {
       sandField,
       velocityField,
       dt,
-      dragValues: [1, 40, 40, 40]  
+      dragValues: [1, 40, 40, 40]
     }, velocityField);
 
-    this.programs.fluidDivergence.run({ 
+    this.programs.fluidDivergence.run({
       velocityField,
       resolution,
-      heightMap, 
+      heightMap,
       invResolution,
-      dt  
+      dt
     }, velocityField);
 
     for (let i = 0; i < this.options.fluid.pressureSolveIterations; i++){
-      this.programs.fluidPressure.run({ 
+      this.programs.fluidPressure.run({
         velocityField,
         resolution,
-        heightMap, 
-        invResolution 
+        heightMap,
+        invResolution
       }, velocityField);
     }
 
@@ -210,14 +224,12 @@ window.FluidSolver = class FluidSolver {
     }, this.settlementTexture);
 
     this.programs.subtractPressureGradient.run({
-      velocityField, 
+      velocityField,
       invResolution,
-      dt  
+      dt
     }, velocityField);
 
-
-
-    this.programs.show.run({ 
+    this.programs.show.run({
       source: sandField,
       heightMap,
       resolution,
@@ -225,4 +237,3 @@ window.FluidSolver = class FluidSolver {
     });
   }
 }
-

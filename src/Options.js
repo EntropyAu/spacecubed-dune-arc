@@ -6,18 +6,21 @@ window.Options = class Options {
     this.edgeFade = 0;
 
     this.fluid = {
-      pressureSolveIterations: 18,
-      resolution: 256
+      pressureSolveIterations: 5,
+      resolution: 128
     };
+
     this.source = {
       minRate: 10,
       maxRate: 20,
       numEmitters: 7
     };
+
     this.settlement = {
       settlementSize: 1024,
       settlementRate: 1,
-      settlementGradient: 200
+      settlementGradient: 200,
+      maxWeight: 0.33
     };
     this.sand1 = {
       name: 'Sand 1',
@@ -41,7 +44,7 @@ window.Options = class Options {
       name: 'Sand 4',
       weight: 1,
       friction: 1,
-      color: [200,180,160]
+      color: [255,0,128]
     };
     this.initializeGUI();
   }
@@ -52,6 +55,8 @@ window.Options = class Options {
       width: 350,
       autoPlace: true
     });
+
+    gui.remember(this);
 
     gui.add(this, 'dt')
        .min(0.01)
@@ -65,7 +70,6 @@ window.Options = class Options {
     this.initializeSettlementGUI(gui);
     this.initializeSandGUI(gui);
 
-    gui.remember(this);
     gui.close();
   }
 
@@ -127,20 +131,24 @@ window.Options = class Options {
           .min(0)
           .max(500)
           .name('Settlement Gradient');
-    folder.add(this.settlement, 'settlementSize', { 
-                "Extra High Quality": 2048, 
-                "High Quality": 1024, 
-                "Medium Quality": 512, 
-                "Low Quality": 256 
+    folder.add(this.settlement, 'settlementSize', {
+                "Extra High Quality": 2048,
+                "High Quality": 1024,
+                "Medium Quality": 512,
+                "Low Quality": 256
               });
+    folder.add(this.settlement, 'maxWeight')
+          .min(0.01)
+          .max(0.99)
+          .name('Maximum Weight');
   }
 
 
   initializeSandGUI(gui) {
     for (let sandOptions of [
-      this.sand1, 
-      this.sand2, 
-      this.sand3, 
+      this.sand1,
+      this.sand2,
+      this.sand3,
       this.sand4]) {
       const folder = gui.addFolder(sandOptions.name);
       folder.addColor(sandOptions, 'color')
@@ -154,7 +162,5 @@ window.Options = class Options {
             .max(1)
             .name('Friction');
     }
-
   }
-
 }

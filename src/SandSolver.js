@@ -5,6 +5,7 @@ window.SandSolver = class SandSolver {
     this.width = null
     this.height = null
     this.heightMap = null
+    this.sink = 0;
     this.image = null
     this.imageData = null
     this.options = options;
@@ -29,14 +30,16 @@ window.SandSolver = class SandSolver {
   }
 
   render() {
-    this.context.putImageData(this.image, 0, 0);
+    this.context.putImageData(this.image, 0, this.sink - this.height);
+    this.context.putImageData(this.image, 0, this.sink);
   }
 
   tick() {
     this.readSettledTexture();
-    this.render();
     this.collapse();
+    this._sinkIfRequired();
     this.writeHeightMap();
+    this.render();
   }
 
   readSettledTexture() {
@@ -59,7 +62,7 @@ window.SandSolver = class SandSolver {
   addSandPile(x, pile) {
     for (let s of pile) {
       this.addSand(x, s.volume, s.color);
-    }    
+    }
   }
 
   addSand(x, volume, color) {
@@ -70,9 +73,11 @@ window.SandSolver = class SandSolver {
     var imageData = this.imageData;
     while (remaining > 0 && y >= 0) {
       var i = (x + y * this.width) * 4;
+      var i2 = (i - this.sink * this.width * 4) % (this.width * this.height * 4);
+      i = i2;
       var currentCellVolume = imageData[i + 3];
-      var cellVolume = remaining <= 255 - currentCellVolume 
-                     ? remaining 
+      var cellVolume = remaining <= 255 - currentCellVolume
+                     ? remaining
                      : 255 - currentCellVolume;
       var newCellVolume = currentCellVolume + cellVolume;
       imageData[i + 0] = Math.round((currentCellVolume * imageData[i + 0] + cellVolume * color[0]) / newCellVolume); // R
@@ -96,14 +101,15 @@ window.SandSolver = class SandSolver {
     var pile = [];
     while (remaining > 0 && y <= this.height) {
       i = (x + y * this.width) * 4;
-      cellVolume = remaining <= imageData[i + 3] 
-                 ? remaining 
-                 : imageData[i + 3];
-      pile.push({ color: [imageData[i + 0] + colorDelta,
-                          imageData[i + 1] + colorDelta,
-                          imageData[i + 2] + colorDelta],
+      var i2 = (i - this.sink * this.width * 4) % (this.width * this.height * 4);
+      cellVolume = remaining <= imageData[i2 + 3]
+                 ? remaining
+                 : imageData[i2 + 3];
+      pile.push({ color: [imageData[i2 + 0] + colorDelta,
+                          imageData[i2 + 1] + colorDelta,
+                          imageData[i2 + 2] + colorDelta],
                   volume: cellVolume });
-      imageData[i + 3] -= cellVolume; 
+      imageData[i2 + 3] -= cellVolume;
       heightMap[x] -= cellVolume;
       remaining -= cellVolume;
       y++;
@@ -143,5 +149,33 @@ window.SandSolver = class SandSolver {
       var volume = (this.heightMap[x - 1] - this.heightMap[x] - this.options.settlement.settlementGradient) * (0.5 + Math.random() / 2);
       if (volume > 128) this.moveSand(volume, x - 1, x, -2);
     }
+  }
+
+  _sinkIfRequired() {
+    let coverage = this._getPortionCovered();
+    if (this._getPortionCovered() > this.options.settlement.maxWeight) {
+      this._sink();
+    }
+  }
+
+  _getPortionCovered() {
+    let pixelsCovered = 0;
+    for (let i = 0; i < this.width; i++) {
+      pixelsCovered += this.heightMap[i] / (255);
+    }
+    return pixelsCovered / (this.width * this.height);
+  }
+
+  _sink() {
+    this.sink = (this.sink + 1) % this.height;
+    // clear the bottom most row
+    let bottomRow = (this.height - this.sink - 1) * this.width * 4;
+    for (let i = 0; i < this.width * 4; i++) {
+      this.imageData[i + bottomRow] = 0;
+    }
+    for (let i = 0; i < this.width; i++) {
+      this.heightMap[i] = Math.max(0, this.heightMap[i] - 255);
+    }
+
   }
 }
