@@ -7,6 +7,7 @@ window.GLProgram = class GLProgram {
     context.gl.linkProgram(program);
     this.context = context;
     this.glProgram = program;
+    this.loadedUniforms = {};
   }
 
   run(uniforms, target) {
@@ -24,7 +25,6 @@ window.GLProgram = class GLProgram {
     this.context.gl.useProgram(this.glProgram);
     this.setUniforms(uniforms);
     this.context.gl.drawArrays(GL.TRIANGLE_STRIP, 0, 4);
-    this.context.gl.flush();
   }
 
   setUniforms(uniforms) {
@@ -48,6 +48,7 @@ window.GLProgram = class GLProgram {
       } else {
         console.log("Unknown uniform type", uniformName, uniformValue);
       }
+      this.loadedUniforms[uniformName] = uniformValue;
     }
   }
 }

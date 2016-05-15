@@ -1,8 +1,8 @@
 
 window.GhostMaker = class GhostMaker {
   constructor(glContext, options) {
-    this.width = 320;
-    this.height = 200;
+    this.width = 256;
+    this.height = 256;
     this.videoElement = document.createElement("video");
     this.videoElement.width = this.width;
     this.videoElement.height = this.height;
@@ -14,7 +14,7 @@ window.GhostMaker = class GhostMaker {
     this.ghostCanvasContext = this.ghostCanvas.getContext("2d");
     this.initializeBufferCanvas();
     this.initializeDifferenceCanvas();
-    this.texture = new GLTexture(glContext, { width: this.width, height: this.height, linearSample: false });
+    this.texture = new GLTexture2Phase(glContext, { width: this.width, height: this.height, mode: GL.UNSIGNED_BYTE });
     this.playing = false;
     this.frame = 0;
     this.start();
@@ -35,8 +35,8 @@ window.GhostMaker = class GhostMaker {
   }
 
   start() {
-    navigator.webkitGetUserMedia({ "video": true }, (stream) => {
-      this.videoElement.src = window.webkitURL.createObjectURL(stream);
+    navigator.mozGetUserMedia({ "video": true }, (stream) => {
+      this.videoElement.src = window.URL.createObjectURL(stream);
       this.videoElement.play();
       this.playing = true;
     }, console.error);
@@ -50,9 +50,12 @@ window.GhostMaker = class GhostMaker {
   tick(dt) {
     if (!this.playing) return;
     this.frame ++;
+    if (this.frame % 2 !== 0) return
+
     this.differenceContext.globalCompositeOperation = 'source-over';
     this.differenceContext.drawImage(this.bufferCanvas, 0, 0, this.width, this.height);
     this.bufferCanvasContext.drawImage(this.videoElement, 0, 0, this.width, this.height);
+
     this.differenceContext.globalCompositeOperation = 'difference';
     this.differenceContext.drawImage(this.bufferCanvas, 0, 0, this.width, this.height);
 
@@ -60,19 +63,15 @@ window.GhostMaker = class GhostMaker {
 
     // fade out the background image
     this.ghostCanvasContext.globalCompositeOperation = 'source-over';
-    this.ghostCanvasContext.fillStyle = "rgba(0, 0, 0, 0.02)";
+    this.ghostCanvasContext.fillStyle = "rgba(0, 0, 0, 0.04)";
     this.ghostCanvasContext.fillRect(0, 0, this.width, this.height);
 
     this.ghostCanvasContext.globalCompositeOperation = 'screen';
     this.ghostCanvasContext.globalAlpha = 0.5;
     this.ghostCanvasContext.drawImage(this.differenceCanvas, 0, 0, this.width, this.height);
 
-    this.ghostCanvasContext.globalCompositeOperation = 'color';
-    this.ghostCanvasContext.globalAlpha = 1;
-    this.ghostCanvasContext.fillStyle = "rgba(0, 0, 0, 1)";
-    this.ghostCanvasContext.fillRect(0, 0, this.width, this.height);
-
     let imageData = this.ghostCanvasContext.getImageData(0, 0, this.width, this.height);
-    this.texture.setPixels(new Uint8Array(imageData.data), GL.UNSIGNED_BYTE);
+    this.texture.write.setPixels(new Uint8Array(imageData.data));
+    this.texture.swap();
   }
 }

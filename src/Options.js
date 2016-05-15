@@ -78,9 +78,9 @@ window.Options = class Options {
        .name('Flip Screen')
        .onChange(function(value) {
          if (value) {
-          document.getElementById('container').style.transform = 'scale(1,-1)';
+          document.getElementById('flip-container').style.transform = 'scale(1,-1)';
          } else {
-          document.getElementById('container').style.transform = 'scale(1,1)';
+          document.getElementById('flip-container').style.transform = 'scale(1,1)';
          }
        });
     gui.add(this, 'edgeFade')

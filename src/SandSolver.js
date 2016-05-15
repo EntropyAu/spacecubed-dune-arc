@@ -2,6 +2,7 @@ window.SandSolver = class SandSolver {
 
   constructor(gl, canvas, options) {
     this.gl = gl;
+    this.frame = 0;
     this.width = null
     this.height = null
     this.heightMap = null
@@ -35,10 +36,12 @@ window.SandSolver = class SandSolver {
   }
 
   tick() {
+    this.frame++;
+    if (this.frame % 2 !== 0) return;
     this.readSettledTexture();
     this.collapse();
     this._sinkIfRequired();
-    this.writeHeightMap();
+    if (this.frame % 16 === 0) this.writeHeightMap();
     this.render();
   }
 

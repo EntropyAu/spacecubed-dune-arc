@@ -1,5 +1,6 @@
 window.SandSource = class SandSource {
   constructor(glContext, options) {
+    this.frame = 0;
     this.options = options;
     this.context = glContext;
     this.time = Math.random() * 2024;
@@ -13,7 +14,6 @@ window.SandSource = class SandSource {
     for (let i = 0; i < this.pixels.length; i++)
       this.pixels[i] = 0;
   }
-
 
 
   updatePixels() {
@@ -54,7 +54,9 @@ window.SandSource = class SandSource {
 
 
   tick(dt) {
+    this.frame++;
     this.time += 0.05;
+    if (this.frame % 20 !== 0) return;
     this.clearPixels();
     this.updatePixels();
     this.texture.setPixels(this.pixels);

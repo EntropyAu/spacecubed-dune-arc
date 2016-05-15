@@ -108,7 +108,7 @@ window.FluidSolver = class FluidSolver {
     this.context.gl.vertexAttribPointer(aTexLoc, 2, GL.FLOAT, GL.FALSE, 16, 8);
   }
 
-  tick() {
+  tick(dt) {
     const rgbaToFloat = (color) => {
       return [color[0] / 255,
               color[1] / 255,
@@ -122,14 +122,13 @@ window.FluidSolver = class FluidSolver {
 
     const resolution = this.width;
     const invResolution = 1 / this.width;
-    const dt = this.options.dt;
     const velocityField = this.textures.fluid;
     const sandField = this.textures.sand;
     const heightMap = this.heightMapTexture;
 
     if (!this.ready) return;
 
-    if (this.mousePosition) {
+    if (this.mousePosition && false) {
       let mouseVelocityMagnitude = Math.sqrt(this.mouseVelocity[0] * this.mouseVelocity[0]
                                            + this.mouseVelocity[1] * this.mouseVelocity[1]);
       if (mouseVelocityMagnitude > 0) {
@@ -155,23 +154,13 @@ window.FluidSolver = class FluidSolver {
       }
     }
 
-    if (this.sourceTexture) {
-      this.programs.sandSource.run({
-        invResolution,
-        sandField,
-        sandSource: this.sourceTexture,
-        dt
-      }, sandField);
-    }
-
-    if (this.ghostSourceTexture) {
-      this.programs.sandGhostSource.run({
-        invResolution,
-        sandField,
-        sandSource: this.ghostSourceTexture,
-        dt
-      }, sandField);
-    }
+    this.programs.sandSource.run({
+      invResolution,
+      sandField,
+      ghostSource: this.ghostSourceTexture,
+      sandSource: this.sourceTexture,
+      dt
+    }, sandField);
 
     this.programs.fluidAdvect.run({
       velocityField,
@@ -207,7 +196,6 @@ window.FluidSolver = class FluidSolver {
       sandField,
       velocityField,
       invResolution,
-      heightMap,
       resolution,
       dt,
       dragValues: [1, 0.9, 0.9, 1.1],
@@ -216,7 +204,6 @@ window.FluidSolver = class FluidSolver {
 
     this.programs.sandSettle.run({
       sandField,
-      velocityField,
       heightMap,
       resolution,
       invResolution,
@@ -231,7 +218,6 @@ window.FluidSolver = class FluidSolver {
 
     this.programs.show.run({
       source: sandField,
-      heightMap,
       resolution,
       sandColors
     });

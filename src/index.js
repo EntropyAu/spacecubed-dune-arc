@@ -5,6 +5,8 @@ window.oldCursorPosition = null;
 window.pointerDown = false;
 
 function tick() {
+  stats.begin();
+
   if (currentCursorPosition) {
     oldCursorPosition = newCursorPosition || currentCursorPosition;
     newCursorPosition = currentCursorPosition;
@@ -13,6 +15,7 @@ function tick() {
     var c = Math.floor(Math.random()*255);
     fluidSolver.setMouseMotion(newCursorPosition, cursorVelocity, pointerDown);
   }
+
   frames++;
   sandSource.tick(options.dt);
   fluidSolver.tick(options.dt);
@@ -20,7 +23,7 @@ function tick() {
   ghostMaker.tick(options.dt);
 
   requestAnimationFrame(tick);
-
+  stats.end();
 }
 
 
@@ -45,5 +48,8 @@ function main() {
   window.addEventListener('touchstart', (e) => pointerDown = true);
   window.addEventListener('touchend', (e) => pointerDown = false);
 
+  window.stats = new Stats();
+  stats.showPanel(0);
+  document.body.appendChild(stats.dom);
   tick();
 }
