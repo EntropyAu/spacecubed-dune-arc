@@ -28,7 +28,7 @@ function tick() {
 
 
 function main() {
-  window.options = new Options()
+  window.options = new Options().options
   var glContext = new GLContext(document.getElementById('fluid-canvas'));
   window.sandSolver = new SandSolver(glContext, document.getElementById('sand-canvas'), options);
   window.sandSource = new SandSource(glContext, options);

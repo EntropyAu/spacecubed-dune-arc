@@ -12,7 +12,8 @@ window.SandSolver = class SandSolver {
     this.options = options;
     this.canvas = canvas;
     this.gl = gl;
-    this.setSize(options.settlement.settlementSize, options.settlement.settlementSize);
+    this.setSize(options.sandBehaviour.settlement.resolution,
+                 options.sandBehaviour.settlement.resolution);
   }
 
   setSize(width, height) {
@@ -31,8 +32,8 @@ window.SandSolver = class SandSolver {
   }
 
   render() {
-    this.context.putImageData(this.image, 0, this.sink - this.height);
-    this.context.putImageData(this.image, 0, this.sink);
+    this.context.putImageData(this.image, 0, this.sink - this.height + 1);
+    this.context.putImageData(this.image, 0, this.sink + 1);
   }
 
   tick() {
@@ -46,12 +47,22 @@ window.SandSolver = class SandSolver {
   }
 
   readSettledTexture() {
+    const colorToByteArray = (color) => {
+      const rgb = tinycolor(color).toRgb();
+      return [rgb.r, rgb.g, rgb.b]
+    }
+    const colors = this.options.colors;
+    const sand1Color = colorToByteArray(colors.sand1),
+          sand2Color = colorToByteArray(colors.sand2),
+          sand3Color = colorToByteArray(colors.sand3),
+          sand4Color = colorToByteArray(colors.sand4);
+    const rates = this.options.sandBehaviour.settlement.rate;
     var pixels = this.texture.getPixels();
     for (let i = 0; i < this.width; i++) {
-      if (pixels[i * 4 + 0] > 0) this.addSand(i, pixels[i * 4 + 0] * 256, this.options.sand1.color);
-      if (pixels[i * 4 + 1] > 0) this.addSand(i, pixels[i * 4 + 1] * 256, this.options.sand2.color);
-      if (pixels[i * 4 + 2] > 0) this.addSand(i, pixels[i * 4 + 2] * 256, this.options.sand3.color);
-      if (pixels[i * 4 + 3] > 0) this.addSand(i, pixels[i * 4 + 3] * 256, this.options.sand4.color);
+      if (pixels[i * 4 + 0] > 0) this.addSand(i, pixels[i * 4 + 0] * 256 * rates.overall * rates.sand1, sand1Color);
+      if (pixels[i * 4 + 1] > 0) this.addSand(i, pixels[i * 4 + 1] * 256 * rates.overall * rates.sand2, sand2Color);
+      if (pixels[i * 4 + 2] > 0) this.addSand(i, pixels[i * 4 + 2] * 256 * rates.overall * rates.sand3, sand3Color);
+      if (pixels[i * 4 + 3] > 0) this.addSand(i, pixels[i * 4 + 3] * 256 * rates.overall * rates.sand4, sand4Color);
     }
   }
 
@@ -133,30 +144,32 @@ window.SandSolver = class SandSolver {
   }
 
   _collapseLeft() {
+    const maxGradient = this.options.sandBehaviour.settlement.maxGradient;
     for (var x = this.width - 1; x > 0; x--) {
-      var volume = (this.heightMap[x + 1] - this.heightMap[x] - this.options.settlement.settlementGradient) * (0.5 + Math.random() / 2);
+      var volume = (this.heightMap[x + 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
       if (volume > 64) this.moveSand(volume, x + 1, x, -2);
     }
     for (var x = 0; x < this.width - 1; x++) {
-      var volume = (this.heightMap[x + 1] - this.heightMap[x] - this.options.settlement.settlementGradient) * (0.5 + Math.random() / 2);
+      var volume = (this.heightMap[x + 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
       if (volume > 128) this.moveSand(volume, x + 1, x, -2);
     }
   }
 
   _collapseRight() {
+    const maxGradient = this.options.sandBehaviour.settlement.maxGradient;
     for (var x = 0; x < this.width - 1; x++) {
-      var volume = (this.heightMap[x - 1] - this.heightMap[x] - this.options.settlement.settlementGradient) * (0.5 + Math.random() / 2);
+      var volume = (this.heightMap[x - 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
       if (volume > 64) this.moveSand(volume, x - 1, x, -2);
     }
     for (var x = this.width - 1; x > 0; x--) {
-      var volume = (this.heightMap[x - 1] - this.heightMap[x] - this.options.settlement.settlementGradient) * (0.5 + Math.random() / 2);
+      var volume = (this.heightMap[x - 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
       if (volume > 128) this.moveSand(volume, x - 1, x, -2);
     }
   }
 
   _sinkIfRequired() {
     let coverage = this._getPortionCovered();
-    if (this._getPortionCovered() > this.options.settlement.maxWeight) {
+    if (this._getPortionCovered() > this.options.sandBehaviour.settlement.maxCoverage) {
       this._sink();
     }
   }

@@ -1,8 +1,8 @@
 
 window.GhostMaker = class GhostMaker {
   constructor(glContext, options) {
-    this.width = 256;
-    this.height = 256;
+    this.width = options.interactivity.resolution;
+    this.height = options.interactivity.resolution;
     this.videoElement = document.createElement("video");
     this.videoElement.width = this.width;
     this.videoElement.height = this.height;
@@ -35,7 +35,8 @@ window.GhostMaker = class GhostMaker {
   }
 
   start() {
-    navigator.mozGetUserMedia({ "video": true }, (stream) => {
+    const getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia || navigator.getUserMedia;
+    getUserMedia.bind(navigator)({ "video": true }, (stream) => {
       this.videoElement.src = window.URL.createObjectURL(stream);
       this.videoElement.play();
       this.playing = true;

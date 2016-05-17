@@ -10,7 +10,7 @@ window.FluidSolver = class FluidSolver {
     this.mouseVelocity = null;
     this.programs = {};
     this.ready = false;
-    this.setSize(options.fluid.resolution, options.fluid.resolution, function() {});
+    this.setSize(options.fluidBehaviour.resolution, options.fluidBehaviour.resolution, function() {});
     this.loadFragmentShaders(() => {
       this.loadVertexShaders(() => {
         this.initializePrograms();
@@ -109,17 +109,28 @@ window.FluidSolver = class FluidSolver {
   }
 
   tick(dt) {
-    const rgbaToFloat = (color) => {
-      return [color[0] / 255,
-              color[1] / 255,
-              color[2] / 255,
+    const colorToFloat = (color) => {
+      const rgb = tinycolor(color).toRgb();
+      return [rgb.r / 255,
+              rgb.g / 255,
+              rgb.b / 255,
               1.0]
     }
-    const sandColors = [rgbaToFloat(this.options.sand1.color),
-                        rgbaToFloat(this.options.sand2.color),
-                        rgbaToFloat(this.options.sand3.color),
-                        rgbaToFloat(this.options.sand4.color)];
 
+    const sandColors = [colorToFloat(this.options.colors.sand1),
+                        colorToFloat(this.options.colors.sand2),
+                        colorToFloat(this.options.colors.sand3),
+                        colorToFloat(this.options.colors.sand4)];
+    const sandWeights =
+      [this.options.sandBehaviour.weight.sand1 * this.options.sandBehaviour.weight.overall,
+       this.options.sandBehaviour.weight.sand2 * this.options.sandBehaviour.weight.overall,
+       this.options.sandBehaviour.weight.sand3 * this.options.sandBehaviour.weight.overall,
+       this.options.sandBehaviour.weight.sand4 * this.options.sandBehaviour.weight.overall];
+    const sandMovement =
+      [this.options.sandBehaviour.movement.sand1 * this.options.sandBehaviour.movement.overall,
+       this.options.sandBehaviour.movement.sand2 * this.options.sandBehaviour.movement.overall,
+       this.options.sandBehaviour.movement.sand3 * this.options.sandBehaviour.movement.overall,
+       this.options.sandBehaviour.movement.sand4 * this.options.sandBehaviour.movement.overall];
     const resolution = this.width;
     const invResolution = 1 / this.width;
     const velocityField = this.textures.fluid;
@@ -172,7 +183,7 @@ window.FluidSolver = class FluidSolver {
       sandField,
       velocityField,
       dt,
-      dragValues: [1, 40, 40, 100]
+      dragValues: sandWeights
     }, velocityField);
 
     this.programs.fluidDivergence.run({
@@ -183,7 +194,7 @@ window.FluidSolver = class FluidSolver {
       dt
     }, velocityField);
 
-    for (let i = 0; i < this.options.fluid.pressureSolveIterations; i++){
+    for (let i = 0; i < this.options.fluidBehaviour.solverIterations; i++){
       this.programs.fluidPressure.run({
         velocityField,
         resolution,
@@ -198,8 +209,7 @@ window.FluidSolver = class FluidSolver {
       invResolution,
       resolution,
       dt,
-      dragValues: [1, 0.9, 0.9, 1.1],
-      translate: [0, 0.005]
+      dragValues: sandMovement
     }, sandField)
 
     this.programs.sandSettle.run({

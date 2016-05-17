@@ -1,11 +1,10 @@
 <html>
   <head>
-    <title>Sand Art</title>
+    <title>Spacecubed Dune Arc (http://entropyau.github.io/spacecubed-dune-arc)</title>
     <meta name="viewport" content="width=device-width, minimum-scale=1.0">
     <style>
       body {
-        background: black;
-        background-image: linear-gradient(180deg, #111, #001);
+        background: #999;
         padding: 0;
         margin: 0;
       }
@@ -23,15 +22,24 @@
         width: 100%;
         height: 100%;
       }
+      #fade-at-top,
       #fade-at-bottom {
         position: absolute;
-        top: 0;
         left: 0;
         height: 0;
         width: 100%;
+      }
+      #fade-at-top {
+        top: 0;
         background-image: linear-gradient(180deg, rgba(0,0,0,255), rgba(0,0,0,0));
       }
+      #fade-at-bottom {
+        bottom: 0;
+        background-image: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,255));
+      }
+
     </style>
+    <script type="text/javascript" src="vendor/tinycolor.js"></script>
     <script type="text/javascript" src="vendor/stats.min.js"></script>
     <script type="text/javascript" src="vendor/dat.gui.min.js"></script>
     <script type="text/javascript" src="vendor/async.min.js"></script>
@@ -44,6 +52,7 @@
     <script type="text/javascript" src="src/lib/GLShader.js"></script>
     <script type="text/javascript" src="src/lib/GLFragmentShader.js"></script>
     <script type="text/javascript" src="src/lib/GLVertexShader.js"></script>
+    <script type="text/javascript" src="src/DefaultOptions.js"></script>
     <script type="text/javascript" src="src/Options.js"></script>
     <script type="text/javascript" src="src/SandSolver.js"></script>
     <script type="text/javascript" src="src/SandSource.js"></script>
@@ -55,6 +64,7 @@
     <div id="flip-container">
       <canvas id="fluid-canvas" width="1024" height="1024"></canvas>
       <canvas id="sand-canvas" width="1024" height="1024"></canvas>
+      <div id="fade-at-top"></div>
       <div id="fade-at-bottom"></div>
     </div>
   </body>

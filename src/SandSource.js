@@ -20,13 +20,15 @@ window.SandSource = class SandSource {
     const t = this.time;
     const random = (seed, timeScale) => Math.abs(noise.simplex2(seed, t / timeScale));
 
+    const emissionOptions = this.options.sandBehaviour.emission;
+
     const emitters = [];
-    for (var e = 0; e < this.options.source.numEmitters; e++) {
-      const flows = [Math.pow(random(e + 10, 500), 3) * 25,
-                     Math.pow(random(e + 20, 500), 3) * 25,
-                     Math.pow(random(e + 30, 500), 3) * 25,
-                     Math.pow(random(e + 40, 500), 3) * 25];
-      const x = (random(e + 50, 2000) + 0.1) * this.width;
+    for (var e = 0; e < emissionOptions.numEmitters; e++) {
+      const flows = [Math.pow(random(e + 10, 200), 3) * this.options.sandBehaviour.emission.maxRate,
+                     Math.pow(random(e + 20, 200), 3) * this.options.sandBehaviour.emission.maxRate,
+                     Math.pow(random(e + 30, 200), 3) * this.options.sandBehaviour.emission.maxRate,
+                     Math.pow(random(e + 40, 200), 3) * this.options.sandBehaviour.emission.maxRate];
+      const x = random(e + 50, 10000) * this.width;
       const width = Math.pow(random(e + 200, 50), 2) * 0.03 * this.width + 1;
       emitters.push({
         flows: flows,
@@ -37,7 +39,7 @@ window.SandSource = class SandSource {
     }
 
     const totalRelativeFlows = _(emitters).map('totalFlow').sum();
-    const adjustedFlow = Math.max(this.options.source.minRate, totalRelativeFlows);
+    const adjustedFlow = Math.max(emissionOptions.minRate, totalRelativeFlows);
     const flowScale = adjustedFlow / totalRelativeFlows;
 
     for (let e of emitters) {
