@@ -1,7 +1,7 @@
 window.defaultOptions = {
   dt: 0.05,
   layout: {
-    flipVertical: false,
+    flipVertical: true,
     fadeAtTop: 50,
     fadeAtBottom: 0
   },
