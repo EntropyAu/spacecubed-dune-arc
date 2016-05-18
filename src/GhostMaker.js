@@ -36,9 +36,9 @@ window.GhostMaker = class GhostMaker {
 
   start() {
     function getUserMedia(args, callback, err) {
-      if (navigator.mozGetUserMedia) return navigator.mozGetUserMedia(args, callback, err);
-      if (navigator.webkitGetUserMedia) return navigator.webkitGetUserMedia(args, callback, err);
-      if (navigator.getUserMedia) return navigator.getUserMedia(args, callback, err);
+      if (navigator.mozGetUserMedia) { navigator.mozGetUserMedia(args, callback, err); return }
+      if (navigator.webkitGetUserMedia) { navigator.webkitGetUserMedia(args, callback, err); return }
+      if (navigator.getUserMedia) { navigator.getUserMedia(args, callback, err); return }
     }
     getUserMedia({ "video": true }, (stream) => {
       this.videoElement.src = window.URL.createObjectURL(stream);
