@@ -18,6 +18,7 @@ window.Options = class Options {
     gui.remember(this.options.sandBehaviour);
     gui.remember(this.options.sandBehaviour.emission);
     gui.remember(this.options.sandBehaviour.settlement);
+    gui.remember(this.options.sandBehaviour.settlement.rate);
     gui.remember(this.options.sandBehaviour.weight);
     gui.remember(this.options.sandBehaviour.movement);
 
