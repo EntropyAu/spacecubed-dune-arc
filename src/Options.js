@@ -78,7 +78,6 @@ window.Options = class Options {
     function update(value) {
       setTimeout(function() {
         const css = `linear-gradient(180deg, ${colors.background1} 0%, ${colors.background2} 50%, ${colors.background3} 100%)`;
-        console.log(css);
         document.getElementById('flip-container').style.background = '-moz-' + css;
         document.getElementById('flip-container').style.background = css;
         document.getElementById('flip-container').style.background = '-webkit-' + css;
