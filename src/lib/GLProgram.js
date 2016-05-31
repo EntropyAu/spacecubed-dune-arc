@@ -33,7 +33,9 @@ window.GLProgram = class GLProgram {
     for (var uniformName in uniforms) {
       var uniformValue = uniforms[uniformName];
       var uniformLocation = gl.getUniformLocation(this.glProgram, uniformName);
-      if (typeof uniformValue === 'number') {
+      if (typeof uniformValue === 'boolean') {
+        gl.uniform1i(uniformLocation, uniformValue ? 1 : 0);
+      } else if (typeof uniformValue === 'number') {
         gl.uniform1f(uniformLocation, uniformValue);
       } else if (_.isArray(uniformValue) && uniformValue.length == 2) {
         gl.uniform2f(uniformLocation, uniformValue[0], uniformValue[1]);

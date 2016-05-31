@@ -5,6 +5,9 @@ window.oldCursorPosition = null;
 window.pointerDown = false;
 
 function tick() {
+  if (!window.options.enabled)
+    return requestAnimationFrame(tick);
+
   stats.begin();
 
   if (currentCursorPosition) {

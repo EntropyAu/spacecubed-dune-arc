@@ -22,6 +22,8 @@ window.Options = class Options {
     gui.remember(this.options.sandBehaviour.weight);
     gui.remember(this.options.sandBehaviour.movement);
 
+    gui.add(this.options, 'enabled')
+       .name('Enabled');
     gui.add(this.options, 'dt')
        .min(0.001)
        .max(0.500)
@@ -67,7 +69,7 @@ window.Options = class Options {
                 "High": 512,
                 "Very High": 1024
               }).name("Resolution");
-    folder.add(interactivity, 'threshold').min(0).max(90).name('Threshold (%)');
+    folder.add(interactivity, 'threshold').min(0).max(0.99).step(0.01).name('Threshold');
     folder.add(interactivity, 'flipVertical').name('Flip Vertical');
     folder.add(interactivity, 'flipHorizontal').name('Flip Horizontal');
   }

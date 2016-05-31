@@ -1,4 +1,5 @@
 window.defaultOptions = {
+  enabled: true,
   dt: 0.05,
   layout: {
     flipVertical: true,

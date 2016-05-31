@@ -139,6 +139,7 @@ window.FluidSolver = class FluidSolver {
 
     if (!this.ready) return;
 
+    /*
     if (this.mousePosition && false) {
       let mouseVelocityMagnitude = Math.sqrt(this.mouseVelocity[0] * this.mouseVelocity[0]
                                            + this.mouseVelocity[1] * this.mouseVelocity[1]);
@@ -164,11 +165,15 @@ window.FluidSolver = class FluidSolver {
         }, sandField);
       }
     }
+    */
 
     this.programs.sandSource.run({
       invResolution,
       sandField,
-      ghostSource: this.ghostSourceTexture,
+      motionSource: this.ghostSourceTexture,
+      motionThreshold: this.options.interactivity.threshold,
+      motionFlipHorizontal: this.options.interactivity.flipHorizontal,
+      motionFlipVertical:this.options.interactivity.flipVertical,
       sandSource: this.sourceTexture,
       dt
     }, sandField);
