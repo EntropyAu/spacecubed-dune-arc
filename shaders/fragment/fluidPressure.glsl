@@ -10,10 +10,11 @@ float heightAtOffset(float x) {
 }
 
 float samplePressure(vec2 at) {
+  if (at.y < heightAtOffset(at.x)) return 0.;
   vec2 normal = vec2(0.0, 0.0);
-  if      (at.x < 0.0) normal.x =  1.0; 
+  if      (at.x < 0.0) normal.x =  1.0;
   else if (at.x > 1.0) normal.x = -1.0;
-  if      (at.y < heightAtOffset(at.x)) normal.y =  1.0; 
+  if      (at.y < heightAtOffset(at.x)) normal.y =  1.0;
   else if (at.y > 1.0) normal.y = -1.0;
   return texture2D(velocityField, at + normal * invResolution).a;
 }

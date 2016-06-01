@@ -174,6 +174,8 @@ window.Options = class Options {
               }).name("Resolution");
     folder.add(settlement, 'maxGradient').min(0).max(500).name('Gradient');
     folder.add(settlement, 'maxCoverage').min(0.01).max(0.99).name('Maximum Coverage');
+    folder.add(settlement, 'colorShiftLeft').min(-1).max(1).step(0.1).name('Color Shift Left');
+    folder.add(settlement, 'colorShiftRight').min(-1).max(1).step(0.1).name('Color Shift Right');
     this.initializeSandBehaviourSettlementRate(folder);
   }
 
@@ -181,7 +183,7 @@ window.Options = class Options {
   initializeSandBehaviourSettlementRate(gui) {
     const folder = gui.addFolder("Sand Behaviour / Settlement / Rate");
     const rate = this.options.sandBehaviour.settlement.rate;
-    folder.add(rate, 'overall').min(0).max(1).name('Overall');
+    folder.add(rate, 'overall').min(0).max(2).name('Overall');
     folder.add(rate, 'sand1').min(0).max(1).name('Sand 1');
     folder.add(rate, 'sand2').min(0).max(1).name('Sand 2');
     folder.add(rate, 'sand3').min(0).max(1).name('Sand 3');

@@ -51,6 +51,8 @@ window.defaultOptions = {
       resolution: 1024,
       maxGradient: 200,
       maxCoverage: 0.20,
+      colorShiftRight: -0.5,
+      colorShiftLeft: 0.5,
       rate: {
         overall: 1,
         sand1: 1,

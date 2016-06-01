@@ -13,9 +13,9 @@ float heightAtOffset(float x) {
 vec2 sampleVelocity(vec2 at){
   vec2 normal = vec2(0., 0.);
   vec2 multiplier = vec2(1., 1.);
-  if      (at.x < 0.) { normal.x =  1.; multiplier.x = -1.; } 
+  if      (at.x < 0.) { normal.x =  1.; multiplier.x = -1.; }
   else if (at.x > 1.) { normal.x = -1.; multiplier.x = -1.; }
-  if      (at.y < heightAtOffset(at.x)) { normal.y =  1.; multiplier = vec2(0.,0.); } 
+  if      (at.y < heightAtOffset(at.x)) { normal.y =  1.; multiplier = vec2(0.5,-0.5); }
   else if (at.y > 1.) { normal.y = -1.; multiplier.y = -1.; }
   return multiplier * texture2D(velocityField, at + normal * invResolution).xy;
 }

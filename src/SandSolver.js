@@ -32,8 +32,9 @@ window.SandSolver = class SandSolver {
   }
 
   render() {
-    this.context.putImageData(this.image, 0, this.sink - this.height + 1);
-    this.context.putImageData(this.image, 0, this.sink + 1);
+    // add dirtyX, Y, width, height
+    this.context.putImageData(this.image, 0, this.height - this.sink);
+    this.context.putImageData(this.image, 0, 0 - this.sink);
   }
 
   tick() {
@@ -66,6 +67,10 @@ window.SandSolver = class SandSolver {
     }
   }
 
+  i(x,h) {
+    return x * 4 + ((h + this.sink) % this.height) * this.width * 4;
+  }
+
   writeHeightMap() {
     for (let i = 0; i < this.width; i++) {
       this.heightMapPixels[i * 4 + 3] = this.heightMap[i] / (255 * this.width);
@@ -80,15 +85,14 @@ window.SandSolver = class SandSolver {
   }
 
   addSand(x, volume, color) {
-    var y = this.height - 1 - (this.heightMap[x] / 255);
+    const heightMap = this.heightMap,
+          imageData = this.imageData;
+    let h = this.heightMap[x] / 255;
+    let remaining = volume;
     x = x|x;
-    y = y|y;
-    var remaining = volume;
-    var imageData = this.imageData;
-    while (remaining > 0 && y >= 0) {
-      var i = (x + y * this.width) * 4;
-      var i2 = (i - this.sink * this.width * 4) % (this.width * this.height * 4);
-      i = i2;
+    h = h|h;
+    while (remaining > 0) {
+      var i = this.i(x,h);
       var currentCellVolume = imageData[i + 3];
       var cellVolume = remaining <= 255 - currentCellVolume
                      ? remaining
@@ -98,35 +102,33 @@ window.SandSolver = class SandSolver {
       imageData[i + 1] = Math.round((currentCellVolume * imageData[i + 1] + cellVolume * color[1]) / newCellVolume); // G
       imageData[i + 2] = Math.round((currentCellVolume * imageData[i + 2] + cellVolume * color[2]) / newCellVolume); // B
       imageData[i + 3] = newCellVolume; // volume
-      this.heightMap[x] += cellVolume;
+      heightMap[x] += cellVolume;
       remaining -= cellVolume;
-      y--;
+      h++;
     }
   }
 
   subtractSand(x, volume, colorDelta) {
-    var heightMap = this.heightMap;
+    const heightMap = this.heightMap,
+          imageData = this.imageData;
+    let remaining = volume;
+    let h = heightMap[x] / 255;
+    let pile = [];
     x = x|x;
-    var y = ((this.height - 1) - (heightMap[x] / 255))|0;
-    var remaining = volume;
-    var imageData = this.imageData;
-    var i = 0;
-    var cellVolume = 0;
-    var pile = [];
-    while (remaining > 0 && y <= this.height) {
-      i = (x + y * this.width) * 4;
-      var i2 = (i - this.sink * this.width * 4) % (this.width * this.height * 4);
-      cellVolume = remaining <= imageData[i2 + 3]
-                 ? remaining
-                 : imageData[i2 + 3];
-      pile.push({ color: [imageData[i2 + 0] + colorDelta,
-                          imageData[i2 + 1] + colorDelta,
-                          imageData[i2 + 2] + colorDelta],
+    h = h|h;
+    while (remaining > 0 && h >= 0) {
+      let i = this.i(x,h);
+      let cellVolume = remaining <= imageData[i + 3]
+                     ? remaining
+                     : imageData[i + 3];
+      pile.push({ color: [imageData[i + 0] + colorDelta,
+                          imageData[i + 1] + colorDelta,
+                          imageData[i + 2] + colorDelta],
                   volume: cellVolume });
-      imageData[i2 + 3] -= cellVolume;
+      imageData[i + 3] -= cellVolume;
       heightMap[x] -= cellVolume;
       remaining -= cellVolume;
-      y++;
+      h--;
     }
     return pile.reverse();
   }
@@ -137,33 +139,36 @@ window.SandSolver = class SandSolver {
     this.addSandPile(toX, sandPile);
   }
 
-
   collapse() {
     this._collapseLeft();
     this._collapseRight();
   }
 
   _collapseLeft() {
-    const maxGradient = this.options.sandBehaviour.settlement.maxGradient;
+    const maxGradient = this.options.sandBehaviour.settlement.maxGradient,
+          colorShiftLeft = this.options.sandBehaviour.settlement.colorShiftLeft;
+    const colorShiftLeftByte = Math.floor(colorShiftLeft * 10)
     for (var x = this.width - 1; x > 0; x--) {
       var volume = (this.heightMap[x + 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
-      if (volume > 64) this.moveSand(volume, x + 1, x, -2);
+      if (volume > 64) this.moveSand(volume, x + 1, x, colorShiftLeftByte);
     }
     for (var x = 0; x < this.width - 1; x++) {
       var volume = (this.heightMap[x + 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
-      if (volume > 128) this.moveSand(volume, x + 1, x, -2);
+      if (volume > 128) this.moveSand(volume, x + 1, x, colorShiftLeftByte);
     }
   }
 
   _collapseRight() {
-    const maxGradient = this.options.sandBehaviour.settlement.maxGradient;
+    const maxGradient = this.options.sandBehaviour.settlement.maxGradient,
+          colorShiftRight = this.options.sandBehaviour.settlement.colorShiftRight;
+    const colorShiftRightByte = Math.floor(colorShiftRight * 10)
     for (var x = 0; x < this.width - 1; x++) {
       var volume = (this.heightMap[x - 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
-      if (volume > 64) this.moveSand(volume, x - 1, x, -2);
+      if (volume > 64) this.moveSand(volume, x - 1, x, colorShiftRightByte);
     }
     for (var x = this.width - 1; x > 0; x--) {
       var volume = (this.heightMap[x - 1] - this.heightMap[x] - maxGradient) * (0.5 + Math.random() / 2);
-      if (volume > 128) this.moveSand(volume, x - 1, x, -2);
+      if (volume > 128) this.moveSand(volume, x - 1, x, colorShiftRightByte);
     }
   }
 
@@ -183,15 +188,16 @@ window.SandSolver = class SandSolver {
   }
 
   _sink() {
-    this.sink = (this.sink + 1) % this.height;
     // clear the bottom most row
-    let bottomRow = (this.height - this.sink - 1) * this.width * 4;
-    for (let i = 0; i < this.width * 4; i++) {
-      this.imageData[i + bottomRow] = 0;
+    for (let x = 0; x < this.width; x++) {
+      this.heightMap[x] = Math.max(0, this.heightMap[x] - 255);
     }
-    for (let i = 0; i < this.width; i++) {
-      this.heightMap[i] = Math.max(0, this.heightMap[i] - 255);
+    for (let i = this.i(0,0); i < this.i(this.width, 0); i++) {
+      this.imageData[i + 0] = 0;
+      this.imageData[i + 1] = 0;
+      this.imageData[i + 2] = 0;
+      this.imageData[i + 3] = 0;
     }
-
+    this.sink = (this.sink + 1) % this.height;
   }
 }
