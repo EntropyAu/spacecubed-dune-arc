@@ -21,6 +21,7 @@ window.GhostMaker = class GhostMaker {
     console.log("Starting camera interactivity...");
     function getMedia(args, callback, err) {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        console.log("Firefox getUserMedia")
         return navigator.mediaDevices.getUserMedia(args, callback, err);
       }
       if (navigator.webkitGetUserMedia) {

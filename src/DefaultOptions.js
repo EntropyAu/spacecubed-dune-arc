@@ -1,7 +1,7 @@
 window.defaultOptions = {
   enabled: true,
   dt: 0.02,
-  fpsEnabled: true,
+  fpsEnabled: false,
   layout: {
     flipVertical: true,
     fadeAtTop: 50,
@@ -15,9 +15,9 @@ window.defaultOptions = {
     flipHorizontal: false
   },
   colors: {
-    background1: "#000000",
-    background2: "#333333",
-    background3: "#EEEEEE",
+    background1: "#BBBBBB",
+    background2: "#222222",
+    background3: "#000000",
     sand1: "#FFFFFF",
     sand2: "#999999",
     sand3: "#333333",
@@ -53,8 +53,8 @@ window.defaultOptions = {
       resolution: 1024,
       maxGradient: 200,
       maxCoverage: 0.20,
-      colorShiftRight: -0.1,
-      colorShiftLeft: 0.1,
+      colorShiftRight: -0.05,
+      colorShiftLeft: 0.05,
       rate: {
         overall: 1,
         sand1: 0.5,

@@ -92,9 +92,7 @@ window.Options = class Options {
     function update(value) {
       setTimeout(function() {
         const css = `linear-gradient(180deg, ${colors.background1} 0%, ${colors.background2} 50%, ${colors.background3} 100%)`;
-        document.getElementById('flip-container').style.background = '-moz-' + css;
-        document.getElementById('flip-container').style.background = css;
-        document.getElementById('flip-container').style.background = '-webkit-' + css;
+        document.getElementById('background-gradient').style.backgroundImage = css;
       }, 0);
     };
     update();
@@ -191,8 +189,8 @@ window.Options = class Options {
               }).name("Resolution");
     folder.add(settlement, 'maxGradient').min(0).max(500).name('Gradient');
     folder.add(settlement, 'maxCoverage').min(0.01).max(0.99).name('Maximum Coverage');
-    folder.add(settlement, 'colorShiftLeft').min(-1).max(1).step(0.1).name('Color Shift Left');
-    folder.add(settlement, 'colorShiftRight').min(-1).max(1).step(0.1).name('Color Shift Right');
+    folder.add(settlement, 'colorShiftLeft').min(-1).max(1).step(0.05).name('Color Shift Left');
+    folder.add(settlement, 'colorShiftRight').min(-1).max(1).step(0.05).name('Color Shift Right');
     this.initializeSandBehaviourSettlementRate(folder);
   }
 
