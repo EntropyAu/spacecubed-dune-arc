@@ -10,6 +10,7 @@ window.FluidSolver = class FluidSolver {
     this.mouseVelocity = null;
     this.programs = {};
     this.ready = false;
+    this.time = 0;
     this.setSize(options.fluidBehaviour.resolution, options.fluidBehaviour.resolution, function() {});
     this.loadFragmentShaders(() => {
       this.loadVertexShaders(() => {
@@ -109,6 +110,7 @@ window.FluidSolver = class FluidSolver {
   }
 
   tick(dt) {
+    this.time += dt;
     const colorToFloat = (color) => {
       const rgb = tinycolor(color).toRgb();
       return [rgb.r / 255,
@@ -121,6 +123,8 @@ window.FluidSolver = class FluidSolver {
                         colorToFloat(this.options.colors.sand2),
                         colorToFloat(this.options.colors.sand3),
                         colorToFloat(this.options.colors.sand4)];
+    const time = this.time;
+    const graininess = this.options.sandBehaviour.graininess;
     const sandWeights =
       [this.options.sandBehaviour.weight.sand1 * this.options.sandBehaviour.weight.overall,
        this.options.sandBehaviour.weight.sand2 * this.options.sandBehaviour.weight.overall,
@@ -208,15 +212,6 @@ window.FluidSolver = class FluidSolver {
       }, velocityField);
     }
 
-    this.programs.sandAdvect.run({
-      sandField,
-      velocityField,
-      invResolution,
-      resolution,
-      dt,
-      dragValues: sandMovement
-    }, sandField)
-
     this.programs.sandSettle.run({
       sandField,
       heightMap,
@@ -224,6 +219,18 @@ window.FluidSolver = class FluidSolver {
       invResolution,
       dt
     }, this.settlementTexture);
+
+    this.programs.sandAdvect.run({
+      sandField,
+      velocityField,
+      heightMap,
+      invResolution,
+      resolution,
+      dt,
+      time,
+      graininess,
+      dragValues: sandMovement
+    }, sandField)
 
     this.programs.subtractPressureGradient.run({
       velocityField,
@@ -234,7 +241,8 @@ window.FluidSolver = class FluidSolver {
     this.programs.show.run({
       source: sandField,
       resolution,
-      sandColors
+      sandColors,
+      time
     });
   }
 }

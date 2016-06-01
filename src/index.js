@@ -8,7 +8,7 @@ function tick() {
   if (!window.options.enabled)
     return requestAnimationFrame(tick);
 
-  stats.begin();
+  if (options.fpsEnabled) stats.begin();
 
   if (currentCursorPosition) {
     oldCursorPosition = newCursorPosition || currentCursorPosition;
@@ -26,7 +26,7 @@ function tick() {
   ghostMaker.tick(options.dt);
 
   requestAnimationFrame(tick);
-  stats.end();
+  if (options.fpsEnabled) stats.end();
 }
 
 
@@ -53,6 +53,5 @@ function main() {
 
   window.stats = new Stats();
   stats.showPanel(0);
-  document.body.appendChild(stats.dom);
   tick();
 }

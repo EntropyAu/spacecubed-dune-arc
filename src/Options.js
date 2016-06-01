@@ -30,6 +30,18 @@ window.Options = class Options {
        .step(0.001)
        .name('Speed (dt)');
 
+    function update(visible) {
+      setTimeout(function() {
+        if (this.options.fpsEnabled) document.body.appendChild(stats.dom);
+        else document.body.removeChild(stats.dom);
+      } , 0);
+    }
+
+    gui.add(this.options, 'fpsEnabled')
+       .onChange(update)
+       .name('Show FPS');
+    update();
+
     this.initializeLayout(gui);
     this.initializeInteractivity(gui);
     this.initializeColors(gui);
@@ -123,6 +135,11 @@ window.Options = class Options {
                 "High": 512,
                 "Very High": 1024
               }).name("Resolution");
+    folder.add(sandBehaviour, 'graininess')
+          .min(0)
+          .max(2)
+          .step(0.1)
+          .name('Graininess');
 
     this.initializeSandBehaviourEmission(folder);
     this.initializeSandBehaviourSettlement(folder);

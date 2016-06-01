@@ -1,6 +1,7 @@
 precision highp float;
 uniform sampler2D source;
 uniform mat4 sandColors;
+uniform float time;
 varying vec2 coords;
 
 void main(void) {

@@ -1,6 +1,7 @@
 window.defaultOptions = {
   enabled: true,
-  dt: 0.05,
+  dt: 0.02,
+  fpsEnabled: true,
   layout: {
     flipVertical: true,
     fadeAtTop: 50,
@@ -15,8 +16,8 @@ window.defaultOptions = {
   },
   colors: {
     background1: "#000000",
-    background2: "#666666",
-    background3: "#CCCCCC",
+    background2: "#333333",
+    background3: "#EEEEEE",
     sand1: "#FFFFFF",
     sand2: "#999999",
     sand3: "#333333",
@@ -28,8 +29,9 @@ window.defaultOptions = {
   },
   sandBehaviour: {
     resolution: 1024,
+    graininess: 0.2,
     emission: {
-      numEmitters: 8,
+      numEmitters: 6,
       minRate: 10,
       maxRate: 50,
       band1: {
@@ -51,13 +53,13 @@ window.defaultOptions = {
       resolution: 1024,
       maxGradient: 200,
       maxCoverage: 0.20,
-      colorShiftRight: -0.5,
-      colorShiftLeft: 0.5,
+      colorShiftRight: -0.1,
+      colorShiftLeft: 0.1,
       rate: {
         overall: 1,
-        sand1: 1,
-        sand2: 1,
-        sand3: 1,
+        sand1: 0.5,
+        sand2: 0.5,
+        sand3: 0.5,
         sand4: 0.1
       }
     },
