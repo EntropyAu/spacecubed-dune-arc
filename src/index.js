@@ -24,6 +24,7 @@ function tick() {
   fluidSolver.tick(options.dt);
   sandSolver.tick(options.dt);
   ghostMaker.tick(options.dt);
+  document.getElementById("logo").style.opacity = (new Date()).getMinutes() === 40 ? 1 : 0;
 
   requestAnimationFrame(tick);
   if (options.fpsEnabled) stats.end();

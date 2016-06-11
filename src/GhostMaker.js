@@ -19,20 +19,8 @@ window.GhostMaker = class GhostMaker {
 
   start() {
     console.log("Starting camera interactivity...");
-    function getMedia(args, callback, err) {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        console.log("Firefox getUserMedia")
-        return navigator.mediaDevices.getUserMedia(args, callback, err);
-      }
-      if (navigator.webkitGetUserMedia) {
-        return navigator.webkitGetUserMedia(args, callback, err);
-      }
-      if (navigator.getUserMedia) {
-        return navigator.getUserMedia(args, callback, err);
-      }
-    }
     this.starting = true;
-    getMedia({ "video": true }, (stream) => {
+    navigator.mozGetUserMedia({ "video": true }, (stream) => {
       this.videoElement.src = window.URL.createObjectURL(stream);
       this.videoElement.play();
       this.playing = true;

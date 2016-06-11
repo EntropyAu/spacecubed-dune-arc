@@ -15,7 +15,7 @@ window.defaultOptions = {
     flipHorizontal: false
   },
   colors: {
-    background1: "#BBBBBB",
+    background1: "#999999",
     background2: "#222222",
     background3: "#000000",
     sand1: "#FFFFFF",
@@ -29,7 +29,7 @@ window.defaultOptions = {
   },
   sandBehaviour: {
     resolution: 1024,
-    graininess: 0.2,
+    graininess: 0.15,
     emission: {
       numEmitters: 6,
       minRate: 10,

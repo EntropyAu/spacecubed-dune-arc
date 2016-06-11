@@ -18,7 +18,7 @@ window.SandSource = class SandSource {
 
   updatePixels() {
     const t = this.time;
-    const random = (seed, timeScale) => Math.abs(noise.simplex2(seed, t / timeScale));
+    const random = (seed, timeScale) => Math.abs(noise.simplex2(seed * 100, t / timeScale));
 
     const emissionOptions = this.options.sandBehaviour.emission;
 
